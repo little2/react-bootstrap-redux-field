@@ -1363,7 +1363,7 @@ export class TableAndFieldEdit extends Component {
     switch(nextProps.actionMode)
     {
       case "List":
-        if(this.props.Field=='Field')
+        if(this.props.Field!='List')
         {
           return true;
         }

@@ -1,7 +1,7 @@
 {
   "name": "react-bootstrap-redux-field",
-  "version": "1.0.3",
-  "main": "./dist/index.js",
+  "version": "1.0.4",
+  "main": "./dist/BootstrapReduxForm.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

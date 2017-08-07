@@ -1866,7 +1866,7 @@ var TableAndFieldEdit = exports.TableAndFieldEdit = function (_Component14) {
     value: function shouldComponentUpdate(nextProps) {
       switch (nextProps.actionMode) {
         case "List":
-          if (this.props.Field == 'Field') {
+          if (this.props.Field != 'List') {
             return true;
           } else {
             return false;
