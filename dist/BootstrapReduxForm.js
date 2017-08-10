@@ -1871,7 +1871,6 @@ var TableAndFieldEdit = exports.TableAndFieldEdit = function (_Component14) {
           } else {
             return false;
           }
-
           break;
 
         default:
@@ -2297,6 +2296,7 @@ var TableAndFieldList = exports.TableAndFieldList = function (_Component15) {
     _this20.onCreateBTClick = _this20.onCreateBTClick.bind(_this20);
     _this20.onEditBTClick = _this20.onEditBTClick.bind(_this20);
     _this20.onRowSelect = _this20.onRowSelect.bind(_this20);
+    _this20.onRowDoubleClick = _this20.onRowDoubleClick.bind(_this20);
     _this20.applyFilter = _this20.applyFilter.bind(_this20);
     _this20.onAdvaSearchBTClick = _this20.onAdvaSearchBTClick.bind(_this20);
     _this20.applyClearFilter = _this20.applyClearFilter.bind(_this20);
@@ -2312,7 +2312,9 @@ var TableAndFieldList = exports.TableAndFieldList = function (_Component15) {
   }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
+      var BootstrapOptions = this.props.BootstrapOptions;
       //預設的篩選條件
+
       if (typeof this.props.DefaultFilterValue != 'undefined') {
         for (var index in this.props.DefaultFilterValue) {
           var value = this.props.DefaultFilterValue[index].toString();
@@ -2331,7 +2333,7 @@ var TableAndFieldList = exports.TableAndFieldList = function (_Component15) {
       });
 
       /*
-        直接在css做修改了 */
+      直接在css做修改了 */
       var formgroupbtn = $('div.react-bs-table-tool-bar > div.row > div:nth-child(2)');
       //     $('.react-bs-table-search-form').removeClass('form-group-sm').removeClass('input-group-sm').addClass('form-group-xlg').addClass('input-group-xlg');
 
@@ -2354,11 +2356,13 @@ var TableAndFieldList = exports.TableAndFieldList = function (_Component15) {
         $(addButton).attr('data-toggle', '').click(this.onCreateBTClick);
       }
 
-      //編輯 , 會隨著有無被選取（onRowSelect）決定是否致能
-      var html = '<button type="button" class="btn btn-edit-after-sel react-bs-table-edit-btn disabled" id="bt_edit">\n                <i class="glyphicon glyphicon-pencil"></i>\u7DE8\u8F2F</button>';
+      if (BootstrapOptions.editMode != 'clickRow') {
+        //編輯 , 會隨著有無被選取（onRowSelect）決定是否致能
+        var html = '<button type="button" class="btn btn-edit-after-sel react-bs-table-edit-btn disabled" id="bt_edit">\n                  <i class="glyphicon glyphicon-pencil"></i>\u7DE8\u8F2F</button>';
 
-      $('.btn-group').append(html).removeClass('btn-group-sm').addClass('btn-group-xlg');
-      $('.react-bs-table-edit-btn').click(this.onEditBTClick);
+        $('.btn-group').append(html).removeClass('btn-group-sm').addClass('btn-group-xlg');
+        $('.react-bs-table-edit-btn').click(this.onEditBTClick);
+      }
     }
   }, {
     key: 'onAdvaSearchBTClick',
@@ -2397,20 +2401,30 @@ var TableAndFieldList = exports.TableAndFieldList = function (_Component15) {
       this.props.onAfterEditBTClick('update');
     }
   }, {
+    key: 'onRowDoubleClick',
+    value: function onRowDoubleClick(row) {
+      if (this.props.BootstrapOptions.editMode == 'clickRow') {
+        this.onEditBTClick();
+      }
+    }
+  }, {
     key: 'onRowSelect',
     value: function onRowSelect(row, isSelected, e) {
-
-      /* 目前在點擊列時, 會觸發 onRowClick(react-boostrap-table-plugins.js) 以及  onRowSelect（由BootstrapTable中的option selectRow 定義, BootstrapReduxForm.js） */
-
-      //處理編輯的按鈕是否可以按
-      if (isSelected) {
-        $('.btn-edit-after-sel').removeClass('disabled');
-      } else {
-        $('.btn-edit-after-sel').addClass('disabled');
-      }
+      /* 目前在點擊列時, 會觸發
+        onRowClick(react-boostrap-table-plugins.js) 以及
+        onRowSelect（由BootstrapTable中的option selectRow 定義, BootstrapReduxForm.js）
+      */
 
       //將值先寫入欄位
       this.props.onSetSelectedInfo(row);
+      if (this.props.BootstrapOptions.editMode != 'clickRow') {
+        //處理編輯的按鈕是否可以按
+        if (isSelected) {
+          $('.btn-edit-after-sel').removeClass('disabled');
+        } else {
+          $('.btn-edit-after-sel').addClass('disabled');
+        }
+      }
     }
   }, {
     key: 'applyClearFilter',
@@ -2466,6 +2480,8 @@ var TableAndFieldList = exports.TableAndFieldList = function (_Component15) {
       });
 
       BootstrapOptions['expanding'] = [1, 2];
+      //双击, 在BootstrapReduxForm中定义
+      BootstrapOptions['onRowDoubleClick'] = this.onRowDoubleClick;
 
       var selectRowObj = { mode: 'radio', clickToSelect: true, onSelect: this.onRowSelect };
 

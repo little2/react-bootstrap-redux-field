@@ -340,9 +340,6 @@ export class RInput extends Component {
 
 }
 
-
-
-
 export class RInputComponent extends Component {
   constructor(props) {
     super(props);
@@ -1012,7 +1009,6 @@ export const RDate = (props) => {
     </div>
 )};
 
-
 export class RDateComponent extends Component {
   constructor(props) {
     super(props);
@@ -1058,8 +1054,7 @@ export class RDateComponent extends Component {
   }
 }
 
-export function fromISODateFormat(value=false)
-{
+export function fromISODateFormat(value=false){
 
   let TimeNow
   if(value)
@@ -1078,8 +1073,7 @@ export function fromISODateFormat(value=false)
   return newvalue;
 }
 
-export function toISODateFormat(value)
-{
+export function toISODateFormat(value){
   let  newvalue='';
   if(value && typeof(value)!='undefined')
   {
@@ -1173,7 +1167,6 @@ export class RFile extends Component {
     )
   }
 }
-
 
 export class RFileComponent extends Component {
   constructor(props) {
@@ -1280,8 +1273,6 @@ export class RFileComponent extends Component {
   }
 }
 
-
-
 export const FormFieldComponet = (props) => (
   <FormGroup controlId={ props.name }>
     <ControlLabel>{props.label}</ControlLabel>
@@ -1332,8 +1323,6 @@ function dateFormatter(cell, row, formatExtraData) {
   //return cellRow[0];
 }
 
-
-
 export class TableAndField extends Component {
   constructor(props){
     super(props);
@@ -1370,7 +1359,6 @@ export class TableAndFieldEdit extends Component {
         else {
           return false;
         }
-
       break;
 
       default:
@@ -1465,8 +1453,7 @@ export class TableAndFieldEdit extends Component {
       this.props.onFieldCancel();
     });}
 
-  render()
-  {
+  render(){
     const { handleSubmit , FieldData , SelectedRow} = this.props;
     let columnClassName;
     switch(this.props.actionMode)
@@ -1759,16 +1746,13 @@ export class TableAndFieldEdit extends Component {
   }
 }
 
-
-
-
-
 export class TableAndFieldList extends Component {
   constructor(props) {
     super(props);
     this.onCreateBTClick=this.onCreateBTClick.bind(this);
     this.onEditBTClick=this.onEditBTClick.bind(this);
     this.onRowSelect = this.onRowSelect.bind(this);
+    this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
     this.applyFilter = this.applyFilter.bind(this);
     this.onAdvaSearchBTClick = this.onAdvaSearchBTClick.bind(this);
     this.applyClearFilter = this.applyClearFilter.bind(this);
@@ -1780,6 +1764,7 @@ export class TableAndFieldList extends Component {
    }
 
   componentDidMount() {
+    const { BootstrapOptions } = this.props;
     //預設的篩選條件
     if(typeof(this.props.DefaultFilterValue)!='undefined')
     {
@@ -1800,7 +1785,7 @@ export class TableAndFieldList extends Component {
        is_filter_enable=true;
      });
 
-/*
+     /*
   直接在css做修改了 */
      let formgroupbtn =  $('div.react-bs-table-tool-bar > div.row > div:nth-child(2)');
 //     $('.react-bs-table-search-form').removeClass('form-group-sm').removeClass('input-group-sm').addClass('form-group-xlg').addClass('input-group-xlg');
@@ -1827,12 +1812,16 @@ export class TableAndFieldList extends Component {
       $(addButton).attr('data-toggle','').click(this.onCreateBTClick);
     }
 
-    //編輯 , 會隨著有無被選取（onRowSelect）決定是否致能
-    let html=`<button type="button" class="btn btn-edit-after-sel react-bs-table-edit-btn disabled" id="bt_edit">
-                <i class="glyphicon glyphicon-pencil"></i>編輯</button>`;
+    if(BootstrapOptions.editMode!='clickRow')
+    {
+      //編輯 , 會隨著有無被選取（onRowSelect）決定是否致能
+      let html=`<button type="button" class="btn btn-edit-after-sel react-bs-table-edit-btn disabled" id="bt_edit">
+                  <i class="glyphicon glyphicon-pencil"></i>編輯</button>`;
 
-    $('.btn-group').append(html).removeClass('btn-group-sm').addClass('btn-group-xlg');
-    $('.react-bs-table-edit-btn').click(this.onEditBTClick);
+      $('.btn-group').append(html).removeClass('btn-group-sm').addClass('btn-group-xlg');
+      $('.react-bs-table-edit-btn').click(this.onEditBTClick);
+    }
+
   }
 
   onAdvaSearchBTClick() {
@@ -1871,22 +1860,33 @@ export class TableAndFieldList extends Component {
     this.props.onAfterEditBTClick('update');
   }
 
-  onRowSelect(row, isSelected, e)
-  {
-
-    /* 目前在點擊列時, 會觸發 onRowClick(react-boostrap-table-plugins.js) 以及  onRowSelect（由BootstrapTable中的option selectRow 定義, BootstrapReduxForm.js） */
-
-    //處理編輯的按鈕是否可以按
-    if(isSelected)
-    {
-      $('.btn-edit-after-sel').removeClass('disabled');
+  onRowDoubleClick(row){
+    if(this.props.BootstrapOptions.editMode=='clickRow'){
+      this.onEditBTClick();
     }
-    else {
-      $('.btn-edit-after-sel').addClass('disabled');
-    }
+  }
+
+
+  onRowSelect(row, isSelected, e){
+    /* 目前在點擊列時, 會觸發
+      onRowClick(react-boostrap-table-plugins.js) 以及
+      onRowSelect（由BootstrapTable中的option selectRow 定義, BootstrapReduxForm.js）
+    */
+
 
     //將值先寫入欄位
     this.props.onSetSelectedInfo(row);
+    if(this.props.BootstrapOptions.editMode!='clickRow'){
+      //處理編輯的按鈕是否可以按
+      if(isSelected)
+      {
+        $('.btn-edit-after-sel').removeClass('disabled');
+      }
+      else {
+        $('.btn-edit-after-sel').addClass('disabled');
+      }
+    }
+
   }
 
   applyClearFilter() {
@@ -1909,13 +1909,11 @@ export class TableAndFieldList extends Component {
     });
   }
 
-  isExpandableRow(row)
-  {
+  isExpandableRow(row){
     return false;
   }
 
-  expandComponent(row)
-  {
+  expandComponent(row){
     return (
       <div>testok</div>
     );
@@ -1933,7 +1931,8 @@ export class TableAndFieldList extends Component {
     });
 
     BootstrapOptions['expanding']=[1,2];
-
+    //双击, 在BootstrapReduxForm中定义
+    BootstrapOptions['onRowDoubleClick']=this.onRowDoubleClick;
 
     let selectRowObj={ mode: 'radio' , clickToSelect: true , onSelect: this.onRowSelect }
 
@@ -1951,12 +1950,9 @@ export class TableAndFieldList extends Component {
       break;
     }
 
-
-
-
     return (
       <div>
-    {/*
+      {/*
       //    開始處理篩選條件
       */}
       <div className={this.state.AdvantageSearchClass} id="serchField" name="serchField">
@@ -2167,7 +2163,6 @@ export class AlertBlock extends Component {
     )
   }
 }
-
 
 export class ModalBlock extends Component {
   constructor(props){
